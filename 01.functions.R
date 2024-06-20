@@ -7,10 +7,9 @@ library(Biobase)
 library(dplyr)
 library('plotrix')
 library('reshape2')
-library(svglite)
 
 
-modidyData.v3 <- function(data){
+modidyData <- function(data, depth){
   print(dim(data))
   names(data) <- head
   row.names(data) <- data$locus_name
@@ -27,7 +26,7 @@ modidyData.v3 <- function(data){
   return(data.rm)
 }
 
-modidyData.SCfilt <- function(data){
+modidyData.SCfilt <- function(data, depth, seed){
   names(data) <- head
   data1.ratio <- merge(data, seed[,c(1,4)], by = "locus_name", all =T)
   data1.ratio$ratio[is.na(data1.ratio$ratio)] <- 1
@@ -55,6 +54,7 @@ modidyData.SCfilt <- function(data){
   data.rm2$mat_Nefref_1 <- data.rm$mat_Nefref_1 * data.rm$ratio
   data.rm2$mat_Nefref_2 <- data.rm$mat_Nefref_2 * data.rm$ratio
   mod_data1 <- data.rm2[, 1:8]
+  
   return(mod_data1)
 }
 
@@ -112,10 +112,6 @@ MatRatePlot.filt <- function(data, data.filt, cross, BH.all, BH.filt, path, titl
 
 Count.Data <- data
 BH <- BH.all
-
-
-#Count.Data <- mod_data1
-#BH <- BH1
 
 Count.Data.rate <- data.frame(Gene=row.names(Count.Data))
 Count.Data.rate$mat_RxN <- apply(Count.Data[, grepl("mat_Refnef",
@@ -324,139 +320,5 @@ MatRatePlot.New <- function(data, cross, BH, path){
     ylab(paste0("Maternal proportion in ", cv[2], " x ", cv[1]))
 
   ggsave(paste0(path, "/plot_", cross, ".tiff"),
-         dpi = 300, width = 5.4, height = 4.8)
-}
-
-Imp.pie <- function(data, code, file){
-  consistent <- length(grep("consistent", data$status))
-  NK.acc <- length(grep("NK accession", data$status))
-  NK.pos <- length(grep("NK possible", data$status))
-  NQ.acc <- length(grep("NQ accession", data$status))
-  NQ.pos <- length(grep("NQ possible", data$status))
-  acc <- NK.acc + NQ.acc
-  pos <- NK.pos + NQ.pos
-
-  if(code == "MEG"){
-    col <- list(cons = "#C01100",
-                acc = "#ED7D31",
-                pos = "#FFC000",
-                Kas = "#A633D4",
-                Q = "#DFB10F",
-                NO = "white")
-  } else if(code == "PEG") {
-    col <- list(cons = "#0570C0",
-                acc = "#5B9BD5",
-                pos = "#9DC3E6",
-                Kas = "#00ADFF",
-                Q = "#01C165",
-                NO = "white")
-  }
-
-  setEPS()
-  postscript(file)
-  par(lwd = 5)
-  pie(c(consistent, NK.acc, NQ.acc, NK.pos, NQ.pos),
-      radius=1,lty = "solid",　lwd = 2,
-      col=as.character(col[c('NO', rep(c("Kas", "Q"), 2))]),
-      border="white", labels='',init.angle = 90, clockwise = TRUE)
-  par(new=T)
-  pie(c(consistent, acc, pos),
-      radius=.8,　
-      col=as.character(col[c('cons',"acc", "pos")]),
-      border="white", labels='',init.angle = 90, clockwise = TRUE)
-  par(new=T)
-  pie(c(consistent, acc, pos),
-      radius=.4,　
-      col="white",
-      border="white", labels='',init.angle = 90, clockwise = TRUE)
-  dev.off()
-
-}
-
-
-
-
-
-imp_status <- function(data_list, code){
-  data_list$contami <- NULL
-  data_list$ref <- NULL
-  data_list$status[with(data_list, State_nk == code & State_nq == code)] <- paste0("consistent ",code)
-  data_list$status[with(data_list, State_nk == code & State_nq == "no detect")] <- paste0("NK possible ",code)
-  data_list$status[with(data_list, State_nk == code & State_nq == "biallele")] <- paste0("NK accession ",code)
-  data_list$status[with(data_list, State_nk == "no detect" & State_nq == code)] <- paste0("NQ possible ",code)
-  data_list$status[with(data_list, State_nk == "biallele" & State_nq == code)] <- paste0("NQ accession ",code)
-
-  data_list$MatRate_nq[with(data_list, status == paste0("NK possible ",code))] <- -0.05
-  data_list$MatRate_nk[with(data_list, status == paste0("NQ possible ",code))] <- -0.05
-
-  return(data_list)
-}
-
-
-
-
-plot_imp <- function(data_non, data_meg, data_peg, stage){
-
-  hoge0 <- data_non
-  hoge1 <- data_meg
-  hoge2 <- data_peg
-  cross <- stage
-
-  hoge0 <- subset(hoge0, MatRate_nk != "-" & MatRate_nq != "-")
-  hoge0$MatRate_nk <- as.numeric(hoge0$MatRate_nk)
-  hoge0$MatRate_nq <- as.numeric(hoge0$MatRate_nq)
-  #  hoge1 <- subset(hoge1, MatRate_nk != "-" & MatRate_nq != "-")
-  hoge1$MatRate_nk <- as.numeric(hoge1$MatRate_nk)
-  hoge1$MatRate_nq <- as.numeric(hoge1$MatRate_nq)
-  #  hoge2 <- subset(hoge2, MatRate_nk != "-" & MatRate_nq != "-")
-  hoge2$MatRate_nk <- as.numeric(hoge2$MatRate_nk)
-  hoge2$MatRate_nq <- as.numeric(hoge2$MatRate_nq)
-
-  ggplot(data=hoge0) +
-    geom_hline(yintercept=0,linetype="dashed", colour="black") +
-    geom_vline(xintercept=0,linetype="dashed", colour="black") +
-    geom_point(data=hoge0, aes(x=MatRate_nk, y=MatRate_nq, color=status, alpha = 0.2)) +
-    geom_point(data=hoge1, aes(x=MatRate_nk, y=MatRate_nq, color=status, alpha = 0.3)) +
-    geom_point(data=hoge2, aes(x=MatRate_nk, y=MatRate_nq, color=status, alpha = 0.3)) +
-    #    xlim(0,1) + ylim(0, 1) +
-    theme_bw() +
-    scale_color_manual(values=c("darkgrey",
-                                "firebrick", "#0168b3",
-                                "darkorchid","#01A6FF", "darkorchid", "#01A6FF",
-                                "goldenrod", "#20B85D", "goldenrod", "#20B85D")) +
-    theme(legend.position = 'none',
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.background = element_rect(fill = "white", colour = "black", size = 1) ,
-          axis.ticks=element_line(size = 1, colour = "black"),
-          plot.title = element_text(hjust = 0.5),
-          axis.text = element_text(color="black", size=20),
-          axis.title=element_text(size=14,face="bold")) +
-    xlab(paste0("maternal proportion of Nipponbare and Kasalath combination")) +
-    ylab(paste0("maternal proportion of Nipponbare and 93-11 combination"))
-  ggsave(paste0("identify_gene/compare/plot_", cross, ".tiff"),
-         dpi = 300, width = 6.4, height = 5.8)
-
-  ggplot(data=hoge0) +
-    geom_point(data=hoge0, aes(x=MatRate_nk, y=MatRate_nq, color=status)) +
-    geom_point(data=hoge1, aes(x=MatRate_nk, y=MatRate_nq, color=status)) +
-    geom_point(data=hoge2, aes(x=MatRate_nk, y=MatRate_nq, color=status)) +
-    #    xlim(0,1) + ylim(0, 1) +
-    theme_bw() +
-    scale_color_manual(values=c("darkgrey",
-                                "firebrick", "#0168b3",
-                                "darkorchid","#01A6FF", "darkorchid", "#01A6FF",
-                                "goldenrod", "#20B85D", "goldenrod", "#20B85D")) +
-    theme(legend.position = 'right',
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.background = element_blank(),
-          axis.ticks=element_line(colour = "black"),
-          plot.title = element_text(hjust = 0.5),
-          axis.text=element_text(size=14),
-          axis.title=element_text(size=14,face="bold")) +
-    xlab(paste0("maternal proportion of Nipponbare and Kasalath combination")) +
-    ylab(paste0("maternal proportion of Nipponbare and 93-11 combination"))
-  ggsave(paste0("identify_gene/compare/plot_regend_", cross, ".tiff"),
          dpi = 300, width = 5.4, height = 4.8)
 }
