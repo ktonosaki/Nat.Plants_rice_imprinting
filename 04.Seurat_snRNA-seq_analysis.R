@@ -128,7 +128,7 @@ combined.sct <- FindClusters(combined.sct, resolution = 0.4)
 
 
 DimPlot(combined.sct, reduction = "umap", label = T)
-ggsave(paste("./Figure/UMAP/DimPlot_umap_all.5dap.pdf"), device = "pdf",
+ggsave("DimPlot.pdf"), device = "pdf",
        dpi = 600, width = 5, height = 4)
 
 write.table(combined.sct$seurat_clusters,
