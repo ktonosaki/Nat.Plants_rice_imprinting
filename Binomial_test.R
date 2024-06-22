@@ -6,12 +6,13 @@ library("furrr")
 core <- 16
 file <- "NK_met_fies.txt"
 out <- "out_dir"
-coverage <- as.numeric(args[4])
-FDR_cutoff <- as.numeric(args[5])
-Pt <- args[6]
+coverage <- 5
+FDR_cutoff <- 0.01
+Pt <- "Pt"
 
 # control chromosome
 dir.create(out)
+
 # paramaters
 options(scipen=100)
 result.table <- NULL
@@ -76,7 +77,3 @@ for (i in 1:length(num_chr)){
   print("")
   rm(data.chr.ex)
 }
-
-print("")
-print(paste0("Finish binominal test, Go2 Next process..."))
-print("")
