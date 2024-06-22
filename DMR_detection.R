@@ -1,8 +1,8 @@
 library("data.table")
 library("tidyverse")
 
-file1 <- args[1] # maternal 
-file2 <- args[2] # paternal
+file1 <- "NK_r1_mat.txt.gz" # maternal 
+file2 <- "NK_r1_pat.txt.gz" # paternal
 FDR_cutoff <- 0.05
 inforC <- 3
 context <- "CpG"
