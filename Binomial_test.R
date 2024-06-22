@@ -3,9 +3,9 @@ library("tidyverse")
 library("R.utils")
 library("furrr")
 
-core <- as.numeric(args[1])
-file <- args[2]
-out <- args[3]
+core <- 16
+file <- ""NK_met_fies.txt
+out <- "out_dir"
 coverage <- as.numeric(args[4])
 FDR_cutoff <- as.numeric(args[5])
 Pt <- args[6]
