@@ -3,6 +3,7 @@ library("tidyverse")
 
 file1 <- "NK_r1_mat.txt.gz" # maternal 
 file2 <- "NK_r1_pat.txt.gz" # paternal
+file3 <- "NK_r1_CpG_DMRs.bed"
 FDR_cutoff <- 0.05
 inforC <- 3
 context <- "CpG"
