@@ -4,7 +4,7 @@
   * 01.functions.R
   * 02.identify_imprinted_genes.R
 * WGBS analysis
-  * 03.Binominal_test.R
+  * 03.Binomial_test.R
   * 04.DMR_detection.R
 * CUT&RUN analysis
   * 05.Zscore_transform.R
