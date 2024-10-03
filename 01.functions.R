@@ -1,4 +1,5 @@
 library("edgeR")
+library("dplyr")
 
 modidyData.mat <- function(data, depth, seed){
   names(data) <- head
