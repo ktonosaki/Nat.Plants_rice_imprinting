@@ -37,5 +37,5 @@ BH_maternal <- GLM_edgeR(mod_data_maternal)
 BH_paternal <- GLM_edgeR(mod_data_paternal)
 
 # filt by maternal rate
-meg_lis <- findMEGs(mod_data1, BH1)
-peg_lis <- findPEGs(mod_data1, BH1filt)
+meg_lis <- findMEGs(mod_data1, BH_maternal)
+peg_lis <- findPEGs(mod_data1, BH_paternal)
